@@ -151,6 +151,16 @@ body .button {
 .site-footer p {
   flex: 1;
 }
+@media (min-width: 1201px) {
+  .site-header:has(.display-preferences) .main-nav {
+    flex: 1 0 auto;
+    justify-content: flex-end;
+  }
+  .site-header:has(.display-preferences) .header-actions {
+    flex: 0.75 0 auto;
+    justify-content: center;
+  }
+}
 @media (max-width: 1200px) {
   .site-header:has(.display-preferences) .main-nav,
   .site-header:has(.display-preferences) .overview-link {

@@ -35,7 +35,9 @@ class StoredAnalysis(BaseModel):
         return ProfileWrite(skills=value).skills
 
 
-COLUMNS = "id,created_at,source_type,sample_limit,profile_skills,dataset_sha256,dataset_version,algorithm_version,extraction_version,vacancy_snapshot,snapshot_signature"
+# CSV records predate the live-source migration and do not use snapshot columns.
+COLUMNS = "id,created_at,source_type,sample_limit,profile_skills,dataset_sha256,dataset_version,algorithm_version,extraction_version"
+LIVE_COLUMNS = f"{COLUMNS},vacancy_snapshot,snapshot_signature"
 SIGNED_FIELDS = {"source_type", "sample_limit", "profile_skills", "dataset_sha256", "dataset_version", "algorithm_version", "extraction_version", "vacancy_snapshot"}
 
 
@@ -74,7 +76,8 @@ class AnalysisRepository:
         # Algorithm/extraction versions remain pinned by database defaults and column grants.
         stored_data = {key: value for key, value in data.items() if key not in ("algorithm_version", "extraction_version")}
         response = await self.profiles.request("POST", "analyses", json=stored_data,
-            params={"select": COLUMNS}, headers_override={"Prefer": "return=representation"})
+            params={"select": LIVE_COLUMNS if sample.source_type == "live_api" else COLUMNS},
+            headers_override={"Prefer": "return=representation"})
         try:
             rows = response.json()
             if not isinstance(rows, list) or len(rows) != 1:
@@ -86,9 +89,9 @@ class AnalysisRepository:
         except (ValueError, TypeError, ValidationError):
             raise HTTPException(503, "The analysis save could not be confirmed. Please try again.") from None
 
-    async def get(self, analysis_id: UUID) -> StoredAnalysis:
+    async def read_row(self, analysis_id: UUID, columns: str) -> dict:
         response = await self.profiles.request("GET", "analyses", params={
-            "id": f"eq.{analysis_id}", "user_id": f"eq.{self.profiles.user.id}", "select": COLUMNS,
+            "id": f"eq.{analysis_id}", "user_id": f"eq.{self.profiles.user.id}", "select": columns,
         })
         try:
             rows = response.json()
@@ -96,7 +99,22 @@ class AnalysisRepository:
                 raise ValueError("Invalid analysis response")
             if not rows:
                 raise HTTPException(404, "Analysis not found in your account.")
-            return self.validate_record(rows[0])
+            if not isinstance(rows[0], dict):
+                raise ValueError("Invalid analysis row")
+            return rows[0]
+        except (ValueError, TypeError):
+            raise HTTPException(503, "The saved analysis could not be read safely.") from None
+
+    async def get(self, analysis_id: UUID) -> StoredAnalysis:
+        row = await self.read_row(analysis_id, COLUMNS)
+        try:
+            if row.get("source_type") == "live_api":
+                # Both reads enforce ownership. Live data still requires its complete,
+                # authenticated snapshot; it can never fall back to the CSV provider.
+                row = await self.read_row(analysis_id, LIVE_COLUMNS)
+                if row.get("source_type") != "live_api":
+                    raise ValueError("Analysis source changed during read")
+            return self.validate_record(row)
         except (ValueError, TypeError, ValidationError):
             raise HTTPException(503, "The saved analysis could not be read safely.") from None
 

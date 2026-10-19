@@ -198,6 +198,15 @@ class LiveAnalysisApiTests(unittest.TestCase):
         restored = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers())
         self.assertEqual(restored.json(), first)
         self.assertEqual(self.live_calls, 1)
+        reads = [request for request in self.requests if request.url.path == "/rest/v1/analyses" and request.method == "GET"]
+        self.assertEqual(len(reads), 2)
+        self.assertNotIn("vacancy_snapshot", reads[0].url.params["select"])
+        self.assertIn("vacancy_snapshot", reads[1].url.params["select"])
+        self.assertIn("snapshot_signature", reads[1].url.params["select"])
+        for request in reads:
+            self.assertEqual(request.headers["authorization"], "Bearer test-a")
+            self.assertEqual(request.url.params["user_id"], f"eq.{demo_tests.USER_A}")
+            self.assertEqual(request.url.params["id"], f"eq.{first['analysis_id']}")
         self.assertEqual(self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers("b")).status_code, 404)
         self.assertNotIn("signature", response.text)
         self.assertNotIn(SETTINGS.analysis_signing_key, response.text)
@@ -217,6 +226,17 @@ class LiveAnalysisApiTests(unittest.TestCase):
             mutate(changed)
             self.records[first["analysis_id"]] = (demo_tests.USER_A, changed)
             self.assertEqual(self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers()).status_code, 503)
+
+    def test_live_restore_requires_snapshot_columns_and_preserves_ownership(self):
+        first = self.create().json()
+        self.snapshot_columns_available = False
+        restored = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers())
+        self.assertEqual(restored.status_code, 503)
+        self.assertNotIn("vacancy_snapshot", restored.text)
+        self.assertNotIn("42703", restored.text)
+        other_user = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers("b"))
+        self.assertEqual(other_user.status_code, 404)
+        self.assertEqual(self.live_calls, 1)
 
     def test_live_validation_auth_and_no_client_scores_or_automatic_fallback(self):
         for body in ({"accept_hh_terms": False}, {"accept_hh_terms": "true"}, {"sample_limit": 11}, {"vacancies": []}, {"scores": [100]}):

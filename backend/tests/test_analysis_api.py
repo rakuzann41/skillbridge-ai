@@ -27,6 +27,8 @@ class AnalysisApiTests(unittest.TestCase):
         self.profile_saved = True
         self.skills = [{"skill_id": "sql", "level": "comfortable"}, {"skill_id": "python", "level": "learning"}]
         self.database_failure = False
+        self.snapshot_columns_available = True
+        self.project_selected_columns = True
         async def fake_client():
             async with httpx.AsyncClient(transport=httpx.MockTransport(self.transport)) as client:
                 yield client
@@ -57,6 +59,9 @@ class AnalysisApiTests(unittest.TestCase):
                 "user_skills": self.skills,
             }] if self.profile_saved else [])
         self.assertEqual(request.url.path, "/rest/v1/analyses")
+        selected_columns = set(request.url.params["select"].split(","))
+        if not self.snapshot_columns_available and selected_columns & {"vacancy_snapshot", "snapshot_signature"}:
+            return httpx.Response(400, json={"code": "42703", "message": "column analyses.vacancy_snapshot does not exist"})
         if self.database_failure:
             return httpx.Response(500, json={"detail": "do not expose this"})
         if request.method == "POST":
@@ -74,7 +79,11 @@ class AnalysisApiTests(unittest.TestCase):
         self.assertEqual(request.url.params["user_id"], f"eq.{owner}")
         requested = request.url.params["id"].removeprefix("eq.")
         stored = self.records.get(requested)
-        return httpx.Response(200, json=[stored[1]] if stored and stored[0] == owner else [])
+        rows = []
+        if stored and stored[0] == owner:
+            rows = [{key: stored[1].get(key) for key in selected_columns}
+                    if self.project_selected_columns else stored[1]]
+        return httpx.Response(200, json=rows)
 
     def create(self, user="a", **body):
         return self.client.post("/analyses", headers=self.headers(user), json={"source": "csv_demo", **body})
@@ -112,6 +121,22 @@ class AnalysisApiTests(unittest.TestCase):
         restored = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers())
         self.assertEqual(restored.status_code, 200)
         self.assertEqual(restored.json(), first)
+
+    def test_csv_save_and_restore_work_before_live_snapshot_migration(self):
+        self.snapshot_columns_available = False
+        created = self.create()
+        self.assertEqual(created.status_code, 201, created.text)
+        first = created.json()
+        self.skills = []
+        restored = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers())
+        self.assertEqual(restored.status_code, 200, restored.text)
+        self.assertEqual(restored.json(), first)
+        for request in self.requests:
+            if request.url.path == "/rest/v1/analyses":
+                self.assertNotIn("vacancy_snapshot", request.url.params["select"])
+                self.assertNotIn("snapshot_signature", request.url.params["select"])
+        other_user = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers("b"))
+        self.assertEqual(other_user.status_code, 404)
 
     def test_other_account_cannot_read_analysis_even_with_owner_query(self):
         first = self.create().json()
@@ -170,6 +195,8 @@ class AnalysisApiTests(unittest.TestCase):
 
     def test_stored_forged_score_fields_are_not_trusted(self):
         first = self.create().json()
+        # Simulate an upstream response violating the requested projection.
+        self.project_selected_columns = False
         self.records[first["analysis_id"]][1]["score"] = 100
         response = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers())
         self.assertEqual(response.status_code, 503)

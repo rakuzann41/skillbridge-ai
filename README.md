@@ -158,6 +158,8 @@ Skill mention percentages use the successfully normalized sample as denominator,
 
 Saved analyses contain canonical profile skill inputs, source/version metadata, and the CSV SHA-256 fingerprint. Scores and vacancy facts are **recomputed from server-owned data**, never accepted from stored client output. Later profile changes do not alter earlier analyses. If the dataset bytes or supported versions change, replay returns 409 rather than silently changing results. This initial build ships one dataset version; retaining old versions is a later extension.
 
+CSV analysis saves and reads use the original analysis columns and work without migration 004. A saved live analysis first reads its source metadata, then loads and verifies the signed vacancy snapshot with the same account/analysis filters. Live saves and reads still require migration 004 (`vacancy_snapshot` and `snapshot_signature`); missing live columns never trigger an automatic CSV substitution. If Supabase reports `42703` for `analyses.vacancy_snapshot`, check that migration 004 was applied to the project named by the backend's `SUPABASE_URL`. The API keeps raw database diagnostics private.
+
 ## Learning roadmap
 
 Open **My roadmap** from the account navigation or **Open my roadmap** from results. Before first creation, choose **Create my roadmap**. Opening the page alone never creates a plan. Results pass their saved analysis ID so FastAPI can compute the initial order from that owned sample. Without an analysis, the default foundation order is used.
