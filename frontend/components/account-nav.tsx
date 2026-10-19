@@ -1,11 +1,14 @@
 "use client";
 
+import { useI18n } from "@/components/preferences-provider";
+
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 
 export function AccountNav() {
+  const { t } = useI18n();
   const pathname = usePathname();
   const { client, session, loading } = useAuth();
   const [busy, setBusy] = useState(false);
@@ -31,37 +34,41 @@ export function AccountNav() {
   if (loading)
     return (
       <span className="account-loading" role="status">
-        Loading account…
+        {" "}
+        {t("Loading account…")}{" "}
       </span>
     );
   if (!session)
     return (
       <Link href="/sign-in" className="header-link">
-        Sign in
+        {" "}
+        {t("Sign in")}{" "}
       </Link>
     );
   return (
-    <nav className="account-nav" aria-label="Your account">
+    <nav className="account-nav" aria-label={t("Your account")}>
       <Link
         href="/setup"
         className="header-link"
         aria-current={pathname === "/setup" ? "page" : undefined}
       >
-        My profile
+        {" "}
+        {t("My profile")}{" "}
       </Link>
       <Link
         href="/roadmap"
         className="header-link"
         aria-current={pathname === "/roadmap" ? "page" : undefined}
       >
-        My roadmap
+        {" "}
+        {t("My roadmap")}{" "}
       </Link>
       <button className="sign-out-button" disabled={busy} onClick={signOut}>
-        {busy ? "Signing out…" : "Sign out"}
+        {busy ? t("Signing out…") : t("Sign out")}
       </button>
       {error && (
         <p className="account-error" role="alert">
-          {error}
+          {t(error || "")}
         </p>
       )}
     </nav>

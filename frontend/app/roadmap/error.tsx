@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/preferences-provider";
+
 import { SiteHeader } from "@/components/site-header";
 
 export default function ErrorPage({
@@ -8,16 +10,20 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   retry: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <>
       <SiteHeader setup />
       <main id="main" className="page-width roadmap-main">
         <section className="roadmap-error" role="alert">
-          <h1>Your roadmap couldn’t be opened.</h1>
-          <p>Try opening the page again to restore your saved progress.</p>
+          <h1>{t("Your roadmap couldn’t be opened.")}</h1>
+          <p>
+            {t("Try opening the page again to restore your saved progress.")}
+          </p>
           <div className="result-state-actions">
             <button onClick={retry} className="button button-primary">
-              Try again
+              {" "}
+              {t("Try again")}{" "}
             </button>
           </div>
         </section>

@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/preferences-server";
 import { SiteHeader } from "@/components/site-header";
 import { AuthForm } from "@/components/auth-form";
 
-export const metadata: Metadata = { title: "Create an account" };
+export function generateMetadata() {
+  return pageMetadata("Create an account");
+}
 export default function SignUpPage() {
   return (
     <>

@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/components/preferences-provider";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -12,6 +16,7 @@ export function ResultsLoading({
 }: {
   phase?: "session" | "load" | "create";
 }) {
+  const { t } = useI18n();
   const label =
     phase === "session"
       ? "Checking your account…"
@@ -22,16 +27,16 @@ export function ResultsLoading({
     <section
       className="results-loading"
       aria-busy="true"
-      aria-label="Loading analysis"
+      aria-label={t("Loading analysis")}
     >
       <div role="status" aria-live="polite" className="loading-message">
         <LoaderCircle size={20} className="loading-spinner" />
         <div>
-          <h2>{label}</h2>
+          <h2>{t(label || "")}</h2>
           <p>
             {phase === "create"
-              ? "We’re comparing the sample and saving your results."
-              : "Your comparison will appear here once it’s ready."}
+              ? t("We’re comparing the sample and saving your results.")
+              : t("Your comparison will appear here once it’s ready.")}
           </p>
         </div>
       </div>
@@ -63,6 +68,7 @@ export function ResultsError({
   recoveryError?: string;
   onDemo?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <section
       className="results-error"
@@ -70,8 +76,8 @@ export function ResultsError({
       aria-labelledby="results-error-heading"
     >
       <TriangleAlert size={24} strokeWidth={1.5} />
-      <h2 id="results-error-heading">{failure.title}</h2>
-      <p>{failure.description}</p>
+      <h2 id="results-error-heading">{t(failure.title || "")}</h2>
+      <p>{t(failure.description || "")}</p>
       <div className="result-state-actions">
         {failure.action === "retry" ? (
           <button
@@ -79,7 +85,7 @@ export function ResultsError({
             onClick={onRetry}
             disabled={pending}
           >
-            {failure.actionLabel}
+            {t(failure.actionLabel || "")}
             <ArrowRight size={16} />
           </button>
         ) : failure.action === "sign-in" && onSignIn ? (
@@ -88,7 +94,7 @@ export function ResultsError({
             disabled={pending}
             onClick={onSignIn}
           >
-            {pending ? "Reconnecting…" : failure.actionLabel}
+            {pending ? t("Reconnecting…") : t(failure.actionLabel)}
             <ArrowRight size={16} />
           </button>
         ) : (
@@ -102,16 +108,21 @@ export function ResultsError({
                   : "/analysis"
             }
           >
-            {failure.actionLabel}
+            {t(failure.actionLabel || "")}
             <ArrowRight size={16} />
           </Link>
         )}
-        {onDemo && <button className="button button-outline" onClick={onDemo}>Use Demo CSV instead</button>}
+        {onDemo && (
+          <button className="button button-outline" onClick={onDemo}>
+            {t("Use Demo CSV instead")}
+          </button>
+        )}
         <Link className="text-link" href="/setup">
-          Back to my profile
+          {" "}
+          {t("Back to my profile")}{" "}
         </Link>
       </div>
-      {recoveryError && <p className="form-error">{recoveryError}</p>}
+      {recoveryError && <p className="form-error">{t(recoveryError)}</p>}
     </section>
   );
 }
@@ -125,14 +136,16 @@ export function ResultsEmpty({
   description: string;
   onReset?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="results-empty">
       <FileSearch size={25} strokeWidth={1.5} />
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <h3>{t(title || "")}</h3>
+      <p>{t(description || "")}</p>
       {onReset && (
         <button className="button button-outline" onClick={onReset}>
-          Show all
+          {" "}
+          {t("Show all")}{" "}
         </button>
       )}
     </div>

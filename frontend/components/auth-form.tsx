@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/preferences-provider";
+
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +10,7 @@ import { useAuth } from "@/components/auth-provider";
 import { ConfigurationNotice } from "@/components/configuration-notice";
 
 export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
+  const { t } = useI18n();
   const {
     client,
     session,
@@ -80,21 +83,24 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   if (loading || session)
     return (
       <p className="panel-status" role="status">
-        {session ? "Opening your profile…" : "Checking your session…"}
+        {session ? t("Opening your profile…") : t("Checking your session…")}
       </p>
     );
   if (confirmation)
     return (
       <div className="auth-confirmation" role="status">
         <Mail size={26} />
-        <h2>Check your inbox.</h2>
+        <h2>{t("Check your inbox.")}</h2>
         <p>
-          If this address is eligible for a new account, a confirmation email
-          will arrive. Open the link to confirm your email and continue.
+          {" "}
+          {t(
+            "If this address is eligible for a new account, a confirmation email will arrive. Open the link to confirm your email and continue.",
+          )}{" "}
         </p>
-        <p>Already have an account? Sign in instead.</p>
+        <p>{t("Already have an account? Sign in instead.")}</p>
         <Link className="button button-primary" href="/sign-in">
-          Go to sign in <ArrowRight size={17} />
+          {" "}
+          {t("Go to sign in")} <ArrowRight size={17} />
         </Link>
       </div>
     );
@@ -103,16 +109,18 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
     <form onSubmit={submit} className="auth-form">
       <div className="form-heading">
         <span className="eyebrow">
-          {signup ? "YOUR NEXT STEP STARTS HERE" : "WELCOME BACK"}
+          {signup ? t("YOUR NEXT STEP STARTS HERE") : t("WELCOME BACK")}
         </span>
-        <h1>{signup ? "Create your account." : "Continue your journey."}</h1>
+        <h1>
+          {signup ? t("Create your account.") : t("Continue your journey.")}
+        </h1>
         <p>
           {signup
-            ? "Keep your profile and skills in one place."
-            : "Sign in to return to your saved profile."}
+            ? t("Keep your profile and skills in one place.")
+            : t("Sign in to return to your saved profile.")}
         </p>
       </div>
-      <label htmlFor="email">Email address</label>
+      <label htmlFor="email">{t("Email address")}</label>
       <input
         id="email"
         name="email"
@@ -124,7 +132,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
         disabled={busy}
         onChange={(event) => setEmail(event.target.value)}
       />
-      <label htmlFor="password">Password</label>
+      <label htmlFor="password">{t("Password")}</label>
       <input
         id="password"
         name="password"
@@ -140,30 +148,49 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
       />
       {signup && (
         <p className="field-hint" id="password-help">
-          Use at least 8 characters. Mix letters, numbers, and symbols for a
-          stronger password.
+          {" "}
+          {t(
+            "Use at least 8 characters. Mix letters, numbers, and symbols for a stronger password.",
+          )}{" "}
         </p>
       )}
-      {signup && <p className="field-hint">By creating an account, you confirm that you have read and accept HeadHunter’s <a href="https://hh.ru/account/agreement" target="_blank" rel="noopener noreferrer" lang="ru" style={{ textDecoration: "underline" }}>Соглашение об оказании услуг по содействию в трудоустройстве (оферта)</a> (employment assistance agreement; opens in a new tab).</p>}
+      {signup && (
+        <p className="field-hint">
+          {t(
+            "By creating an account, you confirm that you have read and accept HeadHunter’s",
+          )}{" "}
+          <a
+            href="https://hh.ru/account/agreement"
+            target="_blank"
+            rel="noopener noreferrer"
+            lang="ru"
+            style={{ textDecoration: "underline" }}
+          >
+            Соглашение об оказании услуг по содействию в трудоустройстве
+            (оферта)
+          </a>{" "}
+          {t("(employment assistance agreement; opens in a new tab).")}
+        </p>
+      )}
       {(error || sessionError) && (
         <p role="alert" className="form-error">
-          {error || sessionError}
+          {t(error || sessionError || "")}
         </p>
       )}
       <button type="submit" disabled={busy} className="button button-primary">
         {busy
           ? signup
-            ? "Creating account…"
-            : "Signing in…"
+            ? t("Creating account…")
+            : t("Signing in…")
           : signup
-            ? "Create account"
-            : "Sign in"}
+            ? t("Create account")
+            : t("Sign in")}
         <ArrowRight size={17} />
       </button>
       <p className="auth-switch">
-        {signup ? "Already have an account?" : "New to SkillBridge?"}{" "}
+        {signup ? t("Already have an account?") : t("New to SkillBridge?")}{" "}
         <Link href={signup ? "/sign-in" : "/sign-up"}>
-          {signup ? "Sign in" : "Create an account"}
+          {signup ? t("Sign in") : t("Create an account")}
         </Link>
       </p>
     </form>

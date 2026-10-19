@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/preferences-provider";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -10,6 +12,7 @@ import { getProfile } from "@/lib/api";
 import type { Profile } from "@/types/profile";
 
 function LoadedProfile({ client }: { client: SupabaseClient }) {
+  const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -33,28 +36,31 @@ function LoadedProfile({ client }: { client: SupabaseClient }) {
   if (error)
     return (
       <div className="profile-state">
-        <h1>Your profile couldn’t be loaded.</h1>
+        <h1>{t("Your profile couldn’t be loaded.")}</h1>
         <p className="form-error" role="alert">
-          {error}
+          {t(error || "")}
         </p>
         <button
           className="button button-outline"
           onClick={() => setAttempt(attempt + 1)}
         >
-          Try again
+          {" "}
+          {t("Try again")}{" "}
         </button>
       </div>
     );
   if (!profile)
     return (
       <p className="panel-status" role="status">
-        Loading your saved profile…
+        {" "}
+        {t("Loading your saved profile…")}{" "}
       </p>
     );
   return <ProfileForm initialProfile={profile} client={client} />;
 }
 
 export function ProfileEditor() {
+  const { t } = useI18n();
   const { client, session, loading, configured } = useAuth();
   const router = useRouter();
   useEffect(() => {
@@ -64,7 +70,7 @@ export function ProfileEditor() {
   if (loading || !session || !client)
     return (
       <p className="panel-status" role="status">
-        {loading ? "Checking your session…" : "Opening sign in…"}
+        {loading ? t("Checking your session…") : t("Opening sign in…")}
       </p>
     );
   // A new account remounts the editor: the previous account's draft is discarded.

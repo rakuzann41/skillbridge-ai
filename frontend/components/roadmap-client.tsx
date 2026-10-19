@@ -1,5 +1,8 @@
 "use client";
 
+import { useI18n } from "@/components/preferences-provider";
+import { formatDate } from "@/lib/i18n";
+
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -28,10 +31,11 @@ function RoadmapLoading({
 }: {
   message?: string;
 }) {
+  const { t } = useI18n();
   return (
     <div className="roadmap-loading" role="status">
       <LoaderCircle size={20} className="loading-spinner" aria-hidden="true" />
-      <p>{message}</p>
+      <p>{t(message || "")}</p>
     </div>
   );
 }
@@ -43,6 +47,7 @@ function LoadedRoadmap({
   client: SupabaseClient;
   analysisId?: string;
 }) {
+  const { t, locale } = useI18n();
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -53,7 +58,9 @@ function LoadedRoadmap({
   const [attempt, setAttempt] = useState(0);
   const [pendingItem, setPendingItem] = useState<string | null>(null);
   const [saveError, setSaveError] = useState(false);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState<{ key: string; stage?: string } | null>(
+    null,
+  );
   const mutation = useRef<AbortController | null>(null);
   const router = useRouter();
   useEffect(() => () => mutation.current?.abort(), []);
@@ -91,7 +98,9 @@ function LoadedRoadmap({
       const saved = await createRoadmap(client, analysisId, controller.signal);
       if (!controller.signal.aborted) {
         setRoadmap(saved);
-        setNotice("Your roadmap is saved. You can return to it any time.");
+        setNotice({
+          key: "Your roadmap is saved. You can return to it any time.",
+        });
       }
     } catch (error) {
       if (!controller.signal.aborted)
@@ -110,7 +119,7 @@ function LoadedRoadmap({
     const controller = new AbortController();
     mutation.current = controller;
     setPendingItem(item.id);
-    setNotice(`Saving ${item.title}…`);
+    setNotice({ key: "Saving {stage}…", stage: item.title });
     try {
       const saved = await saveRoadmapItem(
         client,
@@ -120,16 +129,19 @@ function LoadedRoadmap({
       );
       if (!controller.signal.aborted) {
         setRoadmap(saved);
-        setNotice(
-          `${item.title} marked ${item.completed ? "incomplete" : "complete"}. Progress saved to your account.`,
-        );
+        setNotice({
+          key: item.completed
+            ? "{stage} marked incomplete. Progress saved to your account."
+            : "{stage} marked complete. Progress saved to your account.",
+          stage: item.title,
+        });
       }
     } catch (error) {
       if (!controller.signal.aborted) {
         if (error instanceof ApiError && error.status === 401)
           setError({ status: 401, creating: false });
         else setSaveError(true);
-        setNotice("");
+        setNotice(null);
       }
     } finally {
       mutation.current = null;
@@ -144,21 +156,24 @@ function LoadedRoadmap({
       if (error) throw error;
       router.replace("/sign-in");
     } catch {
-      setNotice("Couldn’t renew your session. Please try again.");
+      setNotice({ key: "Couldn’t renew your session. Please try again." });
     }
   }
 
   const title = (
     <div className="roadmap-heading">
       <div>
-        <p className="eyebrow">JUNIOR DATA ANALYST</p>
+        <p className="eyebrow">{t("JUNIOR DATA ANALYST")}</p>
         <h1>
-          Your learning <span className="serif-accent">roadmap.</span>
+          {" "}
+          {t("Your learning")}{" "}
+          <span className="serif-accent">{t("roadmap.")}</span>
         </h1>
-        <p>One focused path. A practical task at every stage.</p>
+        <p>{t("One focused path. A practical task at every stage.")}</p>
       </div>
       <Link className="text-link" href="/setup">
-        My skills <ArrowUpRight size={16} />
+        {" "}
+        {t("My skills")} <ArrowUpRight size={16} />
       </Link>
     </div>
   );
@@ -167,7 +182,9 @@ function LoadedRoadmap({
       <>
         {title}
         <RoadmapLoading
-          message={creating ? "Creating and saving your roadmap…" : undefined}
+          message={
+            creating ? t("Creating and saving your roadmap…") : undefined
+          }
         />
       </>
     );
@@ -183,36 +200,45 @@ function LoadedRoadmap({
           <TriangleAlert size={24} aria-hidden="true" />
           <h2>
             {expired
-              ? "Let’s reconnect your account."
+              ? t("Let’s reconnect your account.")
               : profile
-                ? "Save your starting point first."
+                ? t("Save your starting point first.")
                 : source
-                  ? "This comparison isn’t available."
+                  ? t("This comparison isn’t available.")
                   : error.creating
-                    ? "Your roadmap couldn’t be created."
-                    : "Your roadmap couldn’t be opened."}
+                    ? t("Your roadmap couldn’t be created.")
+                    : t("Your roadmap couldn’t be opened.")}
           </h2>
           <p>
             {expired
-              ? "Sign in again to open your private roadmap."
+              ? t("Sign in again to open your private roadmap.")
               : profile
-                ? "Save your skills before creating a learning plan. Starting from scratch is welcome."
+                ? t(
+                    "Save your skills before creating a learning plan. Starting from scratch is welcome.",
+                  )
                 : source
-                  ? "You can create a roadmap from your saved profile, or run a new analysis first."
-                  : "The service may be temporarily unavailable. Your saved progress is kept. Please try again."}
+                  ? t(
+                      "You can create a roadmap from your saved profile, or run a new analysis first.",
+                    )
+                  : t(
+                      "The service may be temporarily unavailable. Your saved progress is kept. Please try again.",
+                    )}
           </p>
           <div className="result-state-actions">
             {expired ? (
               <button className="button button-primary" onClick={reconnect}>
-                Sign in again
+                {" "}
+                {t("Sign in again")}{" "}
               </button>
             ) : profile ? (
               <Link href="/setup" className="button button-primary">
-                Review my profile
+                {" "}
+                {t("Review my profile")}{" "}
               </Link>
             ) : source ? (
               <Link href="/roadmap" className="button button-primary">
-                Use my saved profile
+                {" "}
+                {t("Use my saved profile")}{" "}
               </Link>
             ) : (
               <button
@@ -223,14 +249,20 @@ function LoadedRoadmap({
                     : setAttempt((value) => value + 1)
                 }
               >
-                Try again
+                {" "}
+                {t("Try again")}{" "}
               </button>
             )}
             <Link href="/analysis" className="text-link">
-              Back to analysis
+              {" "}
+              {t("Back to analysis")}{" "}
             </Link>
           </div>
-          {notice && <p role="status">{notice}</p>}
+          {notice && (
+            <p role="status">
+              {t(notice.key, { stage: t(notice.stage || "") })}
+            </p>
+          )}
         </section>
       </>
     );
@@ -241,24 +273,32 @@ function LoadedRoadmap({
         {title}
         <section className="roadmap-start">
           <BookOpen size={28} strokeWidth={1.5} aria-hidden="true" />
-          <h2>A clear place to begin.</h2>
+          <h2>{t("A clear place to begin.")}</h2>
           <p>
-            Six stages covering Python, SQL, spreadsheets, analysis,
-            visualization, and a small project. Each has a practice task and
-            reviewed learning links.
+            {" "}
+            {t(
+              "Six stages covering Python, SQL, spreadsheets, analysis, visualization, and a small project. Each has a practice task and reviewed learning links.",
+            )}{" "}
           </p>
           <p>
             {analysisId
-              ? "Use the skill gaps in your selected analysis to set the initial stage order."
-              : "Start with the foundation order and your saved skill confidence."}{" "}
-            Your checklist stays saved as you learn.
+              ? t(
+                  "Use the skill gaps in your selected analysis to set the initial stage order.",
+                )
+              : t(
+                  "Start with the foundation order and your saved skill confidence.",
+                )}{" "}
+            {t("Your checklist stays saved as you learn.")}{" "}
           </p>
           <button className="button button-primary" onClick={create}>
-            Create my roadmap <ArrowRight size={17} />
+            {" "}
+            {t("Create my roadmap")} <ArrowRight size={17} />
           </button>
           <p className="roadmap-caption">
-            Creating another analysis will keep your roadmap and completed
-            stages.
+            {" "}
+            {t(
+              "Creating another analysis will keep your roadmap and completed stages.",
+            )}{" "}
           </p>
         </section>
       </>
@@ -271,9 +311,12 @@ function LoadedRoadmap({
       <section className="roadmap-progress" aria-labelledby="progress-heading">
         <div className="roadmap-progress-top">
           <div>
-            <p className="eyebrow">YOUR PROGRESS</p>
+            <p className="eyebrow">{t("YOUR PROGRESS")}</p>
             <h2 id="progress-heading">
-              {roadmap.completed_count} of {roadmap.total_count} stages complete
+              {t("Stages complete: {count} of {total}", {
+                count: roadmap.completed_count,
+                total: roadmap.total_count,
+              })}
             </h2>
           </div>
           <strong>{roadmap.progress_percentage}%</strong>
@@ -281,21 +324,23 @@ function LoadedRoadmap({
         <progress
           max={roadmap.total_count}
           value={roadmap.completed_count}
-          aria-label="Roadmap completion"
+          aria-label={t("Roadmap completion")}
         >
           {roadmap.progress_percentage}%
         </progress>
         {next ? (
           <a href={`#stage-${next.id}`} className="roadmap-next">
-            <span>Next incomplete stage</span>
+            <span>{t("Next incomplete stage")}</span>
             <strong>
-              {next.title} <ArrowDown size={16} />
+              {t(next.title)} <ArrowDown size={16} />
             </strong>
           </a>
         ) : (
           <p className="roadmap-finished">
-            All stages marked complete. Keep practicing, or uncheck a stage
-            whenever you want to revisit it.
+            {" "}
+            {t(
+              "All stages marked complete. Keep practicing, or uncheck a stage whenever you want to revisit it.",
+            )}{" "}
           </p>
         )}
       </section>
@@ -303,43 +348,58 @@ function LoadedRoadmap({
         <p>
           {roadmap.source_analysis_id ? (
             <>
-              Initial order based on your{" "}
+              {" "}
+              {t("Initial order based on your")}{" "}
               <Link href={`/analysis/${roadmap.source_analysis_id}`}>
-                {roadmap.source_type === "live_api" ? "HeadHunter analysis" : "Demo CSV analysis"}
+                {roadmap.source_type === "live_api"
+                  ? t("HeadHunter analysis")
+                  : t("Demo CSV analysis")}
               </Link>
               {roadmap.analyzed_at
-                ? ` from ${new Date(roadmap.analyzed_at).toLocaleDateString()}`
-                : ""}
-              . Python stays before pandas; the project comes last.
+                ? t(" from {date}", {
+                    date: formatDate(roadmap.analyzed_at, locale),
+                  })
+                : ""}{" "}
+              {t(". Python stays before pandas; the project comes last.")}{" "}
             </>
           ) : (
-            "A foundation order based on your saved profile at creation time."
+            t(
+              "A foundation order based on your saved profile at creation time.",
+            )
           )}
         </p>
         <p>
-          Completion is self-reported. Check a stage when you finish its
-          practice task; uncheck it to undo.
+          {" "}
+          {t(
+            "Completion is self-reported. Check a stage when you finish its practice task; uncheck it to undo.",
+          )}{" "}
         </p>
       </div>
       <p className="roadmap-save-status" role="status" aria-live="polite">
-        {notice || "Progress is saved to your account after each change."}
+        {notice
+          ? t(notice.key, { stage: t(notice.stage || "") })
+          : t("Progress is saved to your account after each change.")}
       </p>
       {saveError && (
         <div className="roadmap-save-error" role="alert">
           <p>
-            We couldn’t confirm that change. Reload your progress to see the
-            latest saved state before making another change.
+            {" "}
+            {t(
+              "We couldn’t confirm that change. Reload your progress to see the latest saved state before making another change.",
+            )}{" "}
           </p>
           <button
             className="button button-outline"
             onClick={() => setAttempt((value) => value + 1)}
           >
-            <RotateCcw size={15} />
-            Reload progress
+            <RotateCcw size={15} /> {t("Reload progress")}{" "}
           </button>
         </div>
       )}
-      <ol className="roadmap-list" aria-label="Learning stages">
+      <p className="roadmap-caption">
+        {t("Learning resources may be in another language.")}
+      </p>
+      <ol className="roadmap-list" aria-label={t("Learning stages")}>
         {roadmap.items.map((item) => (
           <li
             id={`stage-${item.id}`}
@@ -358,10 +418,13 @@ function LoadedRoadmap({
               />
               <div>
                 <span className="roadmap-stage-number">
-                  STAGE {String(item.position).padStart(2, "0")}
+                  {" "}
+                  {t("STAGE")} {String(item.position).padStart(2, "0")}
                 </span>
                 <h2>
-                  <label htmlFor={`complete-${item.id}`}>{item.title}</label>
+                  <label htmlFor={`complete-${item.id}`}>
+                    {t(item.title || "")}
+                  </label>
                 </h2>
               </div>
               <span
@@ -369,27 +432,30 @@ function LoadedRoadmap({
                 className="roadmap-stage-state"
               >
                 {pendingItem === item.id
-                  ? "Saving…"
+                  ? t("Saving…")
                   : item.completed
-                    ? "Complete"
-                    : "To do"}
+                    ? t("Complete")
+                    : t("To do")}
               </span>
             </div>
             <div className="roadmap-stage-body">
-              <p>{item.description}</p>
+              <p>{t(item.description || "")}</p>
               {item.focus_skills.length > 0 && (
                 <p className="roadmap-focus">
-                  <span>Practice focus</span> {item.focus_skills.join(", ")} ·
-                  based on your starting confidence
+                  <span>{t("Practice focus")}</span>{" "}
+                  {item.focus_skills.map((name) => t(name)).join(", ")}{" "}
+                  {t("· based on your starting confidence")}{" "}
                 </p>
               )}
               <div className="roadmap-outcome">
-                <h3>Try it yourself</h3>
-                <p>{item.outcome}</p>
+                <h3>{t("Try it yourself")}</h3>
+                <p>{t(item.outcome || "")}</p>
               </div>
               <ul
                 className="roadmap-resources"
-                aria-label={`Learning links for ${item.title}`}
+                aria-label={t("Learning links for {stage}", {
+                  stage: t(item.title),
+                })}
               >
                 {item.resources.map((resource) => (
                   <li key={resource.label}>
@@ -398,11 +464,14 @@ function LoadedRoadmap({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {resource.label}
+                      {t(resource.label || "")}
                       <ArrowUpRight size={16} aria-hidden="true" />
-                      <span className="sr-only"> (opens in a new tab)</span>
+                      <span className="sr-only">
+                        {" "}
+                        {t("(opens in a new tab)")}
+                      </span>
                     </a>
-                    <p>{resource.note}</p>
+                    <p>{t(resource.note || "")}</p>
                   </li>
                 ))}
               </ul>
@@ -412,11 +481,14 @@ function LoadedRoadmap({
       </ol>
       <footer className="roadmap-footer">
         <p>
-          Your stage order and starting confidence are kept with this plan. New
-          analyses and profile edits won’t reset your progress.
+          {" "}
+          {t(
+            "Your stage order and starting confidence are kept with this plan. New analyses and profile edits won’t reset your progress.",
+          )}{" "}
         </p>
         <Link className="text-link" href="/analysis">
-          Compare my skills again <ArrowRight size={15} />
+          {" "}
+          {t("Compare my skills again")} <ArrowRight size={15} />
         </Link>
       </footer>
     </>
@@ -424,6 +496,7 @@ function LoadedRoadmap({
 }
 
 export function RoadmapClient({ analysisId }: { analysisId?: string }) {
+  const { t } = useI18n();
   const { client, session, loading, configured } = useAuth();
   const router = useRouter();
   useEffect(() => {
@@ -431,7 +504,7 @@ export function RoadmapClient({ analysisId }: { analysisId?: string }) {
   }, [configured, loading, session, router]);
   if (!configured) return <ConfigurationNotice />;
   if (loading || !session || !client)
-    return <RoadmapLoading message="Checking your account…" />;
+    return <RoadmapLoading message={t("Checking your account…")} />;
   return (
     <LoadedRoadmap
       key={`${session.user.id}:${analysisId || "profile"}`}

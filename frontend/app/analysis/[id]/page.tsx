@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/preferences-server";
 import { SiteHeader } from "@/components/site-header";
 import { DemoAnalysis } from "@/components/demo-analysis";
 
-export const metadata: Metadata = {
-  title: "Your results",
-  robots: { index: false, follow: false },
-};
+export function generateMetadata() {
+  return pageMetadata("Your results", true);
+}
 export default async function SavedAnalysisPage({
   params,
 }: {

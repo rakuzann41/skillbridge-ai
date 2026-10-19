@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/preferences-server";
 import { SiteHeader } from "@/components/site-header";
 import { EmailConfirmation } from "@/components/email-confirmation";
 
-export const metadata: Metadata = {
-  title: "Confirm your email",
-  robots: { index: false, follow: false },
-};
+export function generateMetadata() {
+  return pageMetadata("Confirm your email", true);
+}
 export default function ConfirmPage() {
   return (
     <>

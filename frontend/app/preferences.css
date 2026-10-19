@@ -1,0 +1,225 @@
+/* Shared semantic colors keep the existing green/neutral palette in both themes. */
+:root {
+  color-scheme: light;
+  --tone-page: #f7f7f2;
+  --tone-panel: #fafbf6;
+  --tone-soft: #eef1e7;
+  --tone-raised: #e1e8d8;
+  --tone-ink: #253a33;
+  --tone-muted: #58665d;
+  --tone-accent: #234e40;
+  --tone-accent-hover: #193e30;
+  --tone-on-accent: #ffffff;
+  --tone-line: #d3dbcf;
+  --tone-line-strong: #758776;
+  --tone-danger: #a03020;
+  --tone-warning: #70551f;
+  --tone-warning-surface: #f4f0e7;
+  --tone-focus: #4d713e;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --tone-page: #151b18;
+  --tone-panel: #1d2520;
+  --tone-soft: #263229;
+  --tone-raised: #34483a;
+  --tone-ink: #e6ece5;
+  --tone-muted: #b6c1b7;
+  --tone-accent: #accab4;
+  --tone-accent-hover: #c1dcc7;
+  --tone-on-accent: #14231a;
+  --tone-line: #46594b;
+  --tone-line-strong: #718477;
+  --tone-danger: #f0a99b;
+  --tone-warning: #e5c48e;
+  --tone-warning-surface: #302a20;
+  --tone-focus: #c4d8a4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --tone-page: #151b18;
+    --tone-panel: #1d2520;
+    --tone-soft: #263229;
+    --tone-raised: #34483a;
+    --tone-ink: #e6ece5;
+    --tone-muted: #b6c1b7;
+    --tone-accent: #accab4;
+    --tone-accent-hover: #c1dcc7;
+    --tone-on-accent: #14231a;
+    --tone-line: #46594b;
+    --tone-line-strong: #718477;
+    --tone-danger: #f0a99b;
+    --tone-warning: #e5c48e;
+    --tone-warning-surface: #302a20;
+    --tone-focus: #c4d8a4;
+  }
+}
+.site-header:has(.display-preferences) {
+  min-height: 92px;
+  height: auto;
+  padding-block: 20px;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+}
+.site-header:has(.display-preferences) .header-actions,
+.site-header:has(.display-preferences) .account-nav {
+  gap: 16px;
+}
+.site-header:has(.display-preferences) .header-link,
+.site-header:has(.display-preferences) .sign-out-button {
+  font-size: 14px;
+}
+.display-preferences {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.display-preferences select {
+  max-width: 122px;
+  min-height: 40px;
+  border: 1px solid var(--tone-line-strong);
+  border-radius: 4px;
+  background: var(--tone-panel);
+  color: var(--tone-ink);
+  padding: 7px 8px;
+  font-size: 14px;
+}
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--tone-line-strong);
+  border-radius: 4px;
+  background: var(--tone-panel);
+  color: var(--tone-ink);
+}
+.theme-toggle:hover {
+  background: var(--tone-soft);
+}
+.site-header:has(.display-preferences) .main-nav {
+  font-size: 14px;
+}
+.skill-form-panel .skill-row select {
+  width: 185px;
+  font-size: 14px;
+  min-height: 42px;
+}
+.skill-form-panel .skill-row label {
+  font-size: 15px;
+}
+.skill-form-panel .skill-row p {
+  font-size: 13px;
+}
+.skill-form-panel .form-heading p,
+.skill-form-panel .level-guide p,
+.setup-aside .preview-notice p {
+  font-size: 14px;
+}
+.site-header .header-link {
+  padding-block: 8px;
+}
+.results-tabs {
+  overflow-x: auto;
+}
+.results-tabs button {
+  flex-shrink: 0;
+}
+body .button,
+body .text-link {
+  max-width: 100%;
+  white-space: normal;
+}
+body .button {
+  text-align: center;
+}
+.roadmap-stage-heading > div,
+.hero-copy,
+.preview-role > div {
+  min-width: 0;
+}
+.hero .hero-copy h1 {
+  overflow-wrap: anywhere;
+}
+.path-preview .preview-top {
+  flex-wrap: wrap;
+}
+.preview-role .muted {
+  flex-shrink: 0;
+}
+.site-footer p {
+  flex: 1;
+}
+@media (max-width: 1200px) {
+  .site-header:has(.display-preferences) .main-nav,
+  .site-header:has(.display-preferences) .overview-link {
+    display: none;
+  }
+}
+@media (max-width: 800px) {
+  .site-header:has(.display-preferences) {
+    gap: 14px;
+  }
+  .site-header:has(.display-preferences) .wordmark {
+    order: 1;
+  }
+  .site-header:has(.display-preferences) .display-preferences {
+    order: 2;
+    margin-left: auto;
+  }
+  .site-header:has(.display-preferences) .header-actions {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+  .site-header:has(.display-preferences) .account-nav {
+    flex-wrap: wrap;
+    gap: 8px 22px;
+  }
+  .stage-list li {
+    gap: 14px;
+  }
+}
+@media (max-width: 600px) {
+  .site-header:has(.display-preferences) .wordmark {
+    font-size: 19px;
+  }
+  .site-header:has(.display-preferences) .brand-symbol {
+    width: 29px;
+    height: 29px;
+    margin-right: 7px;
+  }
+  .site-header:has(.display-preferences) .brand-ai {
+    margin-left: 4px;
+  }
+  .display-preferences {
+    gap: 6px;
+  }
+  .display-preferences select {
+    max-width: 100px;
+    font-size: 13px;
+  }
+  .skill-form-panel .skill-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .skill-form-panel .skill-row > div {
+    flex: 1 1 130px;
+  }
+  .skill-form-panel .skill-row select {
+    width: 165px;
+    max-width: 100%;
+  }
+  .skill-form-panel .skill-row p {
+    max-width: none;
+  }
+  .stage-list .stage-subtitle {
+    white-space: normal;
+  }
+  .roadmap-heading,
+  .results-title-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}

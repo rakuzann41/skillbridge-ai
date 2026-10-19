@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/preferences-provider";
+
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -24,7 +26,12 @@ type AnalysisState =
   | { kind: "idle" }
   | { kind: "loading" | "creating" }
   | { kind: "ready"; result: AnalysisResult }
-  | { kind: "error"; failure: ResultsFailure; operation: AnalysisOperation; offerDemo?: boolean };
+  | {
+      kind: "error";
+      failure: ResultsFailure;
+      operation: AnalysisOperation;
+      offerDemo?: boolean;
+    };
 
 function AnalysisContent({
   client,
@@ -33,6 +40,7 @@ function AnalysisContent({
   client: SupabaseClient;
   analysisId?: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [state, setState] = useState<AnalysisState>({
     kind: analysisId ? "loading" : "idle",
@@ -71,7 +79,12 @@ function AnalysisContent({
     creation.current = controller;
     setState({ kind: "creating" });
     try {
-      const saved = await createAnalysis(client, selectedSource, acceptedTerms, controller.signal);
+      const saved = await createAnalysis(
+        client,
+        selectedSource,
+        acceptedTerms,
+        controller.signal,
+      );
       if (!controller.signal.aborted)
         router.push(`/analysis/${saved.analysis_id}`);
     } catch (error) {
@@ -80,7 +93,10 @@ function AnalysisContent({
           kind: "error",
           failure: resultsFailure(error, "create"),
           operation: "create",
-          offerDemo: selectedSource === "headhunter" && error instanceof ApiError && Boolean(error.code),
+          offerDemo:
+            selectedSource === "headhunter" &&
+            error instanceof ApiError &&
+            Boolean(error.code),
         });
       creation.current = null;
     }
@@ -121,41 +137,100 @@ function AnalysisContent({
     <>
       <div className="results-title-row">
         <div>
-          <p className="eyebrow">JUNIOR DATA ANALYST</p>
+          <p className="eyebrow">{t("JUNIOR DATA ANALYST")}</p>
           <h1>
-            Your skills, <span className="serif-accent">in context.</span>
+            {" "}
+            {t("Your skills,")}{" "}
+            <span className="serif-accent">{t("in context.")}</span>
           </h1>
-          <p>A clearer view of what you know and what to learn next.</p>
+          <p>{t("A clearer view of what you know and what to learn next.")}</p>
         </div>
         <Link href="/setup" className="text-link">
-          Edit my skills <ArrowRight size={16} />
+          {" "}
+          {t("Edit my skills")} <ArrowRight size={16} />
         </Link>
       </div>
       <section className="analysis-start">
         <FileSearch size={30} strokeWidth={1.5} />
-        <h2>Find your next learning priority.</h2>
-        <p>Compare your saved skills with up to eight vacancies. See your gaps, explore each match, and trace the calculation.</p>
+        <h2>{t("Find your next learning priority.")}</h2>
+        <p>
+          {t(
+            "Compare your saved skills with up to eight vacancies. See your gaps, explore each match, and trace the calculation.",
+          )}
+        </p>
         <fieldset className="analysis-source-picker">
-          <legend>Vacancy source</legend>
-          <label><input type="radio" name="source" value="headhunter" checked={source === "headhunter"} onChange={() => setSource("headhunter")} /> HeadHunter API</label>
-          <label><input type="radio" name="source" value="csv_demo" checked={source === "csv_demo"} onChange={() => setSource("csv_demo")} /> Demo CSV</label>
+          <legend>{t("Vacancy source")}</legend>
+          <label>
+            <input
+              type="radio"
+              name="source"
+              value="headhunter"
+              checked={source === "headhunter"}
+              onChange={() => setSource("headhunter")}
+            />{" "}
+            {t("HeadHunter API")}
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="source"
+              value="csv_demo"
+              checked={source === "csv_demo"}
+              onChange={() => setSource("csv_demo")}
+            />{" "}
+            {t("Demo CSV")}
+          </label>
         </fieldset>
         <div className="start-source">
           <span className="source-badge">
             <Database size={13} />
-            {source === "csv_demo" ? "Demo CSV" : "HeadHunter API"}
+            {source === "csv_demo" ? t("Demo CSV") : t("HeadHunter API")}
           </span>
           <p>
-            {source === "csv_demo" ? "Fictional Junior Data Analyst vacancies, with repeatable results." : "Data Analyst titles · no experience or 1–3 years · all regions · published within 30 days. Availability is checked when fetched."}
+            {source === "csv_demo"
+              ? t(
+                  "Fictional Junior Data Analyst vacancies, with repeatable results.",
+                )
+              : t(
+                  "Data Analyst titles · no experience or 1–3 years · all regions · published within 30 days. Availability is checked when fetched.",
+                )}
           </p>
         </div>
-        {source === "headhunter" && <label className="hh-agreement"><input type="checkbox" checked={acceptedTerms} onChange={(event) => setAcceptedTerms(event.target.checked)} /> <span>I have read and accept HeadHunter’s <a href="https://hh.ru/account/agreement" target="_blank" rel="noopener noreferrer" lang="ru">Соглашение об оказании услуг по содействию в трудоустройстве (оферта)</a> (employment assistance agreement; opens in a new tab).</span></label>}
-        <button className="button button-primary" onClick={() => void analyze()} disabled={source === "headhunter" && !acceptedTerms}>
-          Analyze vacancies <ArrowRight size={17} />
+        {source === "headhunter" && (
+          <label className="hh-agreement">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(event) => setAcceptedTerms(event.target.checked)}
+            />{" "}
+            <span>
+              {t("I have read and accept HeadHunter’s")}{" "}
+              <a
+                href="https://hh.ru/account/agreement"
+                target="_blank"
+                rel="noopener noreferrer"
+                lang="ru"
+              >
+                Соглашение об оказании услуг по содействию в трудоустройстве
+                (оферта)
+              </a>{" "}
+              {t("(employment assistance agreement; opens in a new tab).")}
+            </span>
+          </label>
+        )}
+        <button
+          className="button button-primary"
+          onClick={() => void analyze()}
+          disabled={source === "headhunter" && !acceptedTerms}
+        >
+          {" "}
+          {t("Analyze vacancies")} <ArrowRight size={17} />
         </button>
         <p className="start-save-note">
-          Save any profile edits first. Your comparison will be saved to your
-          account.
+          {" "}
+          {t(
+            "Save any profile edits first. Your comparison will be saved to your account.",
+          )}{" "}
         </p>
       </section>
     </>
@@ -163,6 +238,7 @@ function AnalysisContent({
 }
 
 export function DemoAnalysis({ analysisId }: { analysisId?: string }) {
+  const { t } = useI18n();
   const { client, session, loading, configured } = useAuth();
   const router = useRouter();
   useEffect(() => {

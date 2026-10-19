@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/preferences-server";
 import { SiteHeader } from "@/components/site-header";
 import { RoadmapClient } from "@/components/roadmap-client";
 
-export const metadata: Metadata = {
-  title: "Your learning roadmap",
-  robots: { index: false, follow: false },
-};
+export function generateMetadata() {
+  return pageMetadata("Your learning roadmap", true);
+}
 
 export default async function RoadmapPage({
   searchParams,

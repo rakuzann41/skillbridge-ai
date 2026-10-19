@@ -40,7 +40,7 @@
   padding: 30px;
   border: 1px solid var(--line);
   border-radius: 5px;
-  background: #f0f2e8;
+  background: var(--tone-soft);
 }
 .roadmap-start h2,
 .roadmap-error h2 {
@@ -53,7 +53,7 @@
 .roadmap-start > p,
 .roadmap-error > p {
   font-size: 15px;
-  color: #59655d;
+  color: var(--tone-accent);
   margin-top: 13px;
   line-height: 1.8;
 }
@@ -65,8 +65,8 @@
 }
 .roadmap-progress {
   padding: 27px 30px;
-  background: #ecf0e3;
-  border: 1px solid #d8e0cb;
+  background: var(--tone-soft);
+  border: 1px solid var(--tone-line);
   border-radius: 5px;
 }
 .roadmap-progress-top {
@@ -96,11 +96,11 @@
   border: 0;
   border-radius: 2px;
   overflow: hidden;
-  background: #d5decb;
+  background: var(--tone-raised);
   accent-color: var(--green);
 }
 .roadmap-progress progress::-webkit-progress-bar {
-  background: #d5decb;
+  background: var(--tone-raised);
 }
 .roadmap-progress progress::-webkit-progress-value {
   background: var(--green);
@@ -116,7 +116,7 @@
   font-size: 14px;
 }
 .roadmap-next > span {
-  color: #59694f;
+  color: var(--tone-accent);
 }
 .roadmap-next strong {
   display: inline-flex;
@@ -128,7 +128,7 @@
 }
 .roadmap-finished {
   font-size: 14px;
-  color: #506348;
+  color: var(--tone-accent);
 }
 .roadmap-context {
   margin-block: 23px 12px;
@@ -146,7 +146,7 @@
   color: var(--green);
 }
 .roadmap-save-status {
-  color: #3c6246;
+  color: var(--tone-accent);
   font-size: 13px;
   min-height: 24px;
   margin-bottom: 18px;
@@ -179,8 +179,8 @@
   cursor: wait;
 }
 .roadmap-stage-number {
-  color: #63735c;
-  font-size: 11px;
+  color: var(--tone-accent);
+  font-size: 12px;
   letter-spacing: 1px;
 }
 .roadmap-stage-heading h2 {
@@ -202,7 +202,7 @@
   flex-shrink: 0;
 }
 .stage-completed .roadmap-stage-state {
-  color: #3c6246;
+  color: var(--tone-accent);
 }
 .roadmap-stage-body {
   margin-left: 45px;
@@ -210,7 +210,7 @@
 }
 .roadmap-stage-body > p {
   font-size: 15px;
-  color: #59655d;
+  color: var(--tone-accent);
   margin-top: 13px;
   line-height: 1.8;
 }
@@ -221,13 +221,13 @@
 }
 .roadmap-focus span {
   font-weight: 600;
-  color: #536849;
+  color: var(--tone-accent);
   margin-right: 7px;
 }
 .roadmap-outcome {
   padding: 17px 20px;
   margin-block: 21px;
-  background: #eef0e7;
+  background: var(--tone-soft);
   border-radius: 4px;
 }
 .roadmap-outcome h3 {
@@ -238,7 +238,7 @@
 .roadmap-outcome p {
   font-size: 14px;
   line-height: 1.8;
-  color: #59655d;
+  color: var(--tone-accent);
 }
 .roadmap-resources {
   list-style: none;
@@ -288,13 +288,13 @@
 .roadmap-error,
 .roadmap-save-error {
   padding: 25px;
-  border: 1px solid #d7c9b9;
-  background: #f4f0e7;
+  border: 1px solid var(--tone-line-strong);
+  background: var(--tone-warning-surface);
   border-radius: 5px;
   max-width: 700px;
 }
 .roadmap-error > svg {
-  color: #8a6835;
+  color: var(--tone-warning);
 }
 .roadmap-save-error {
   margin-block: 18px;

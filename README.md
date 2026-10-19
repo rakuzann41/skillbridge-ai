@@ -23,6 +23,14 @@ Without HeadHunter credentials, the available working source is the synthetic de
 
 ## Architecture
 
+### Language and appearance
+
+The header offers English, Қазақша (Kazakh), and Русский (Russian), plus a light/dark theme toggle. The initial theme follows the device preference. Both choices are saved in first-party preference cookies for one year in the current browser; they do not require new credentials or database migrations. Server-rendered content, document language, and page metadata use the language cookie, while language changes preserve the current form state.
+
+Interface copy, skill descriptions, results explanations, roadmap guidance, and app messages are translated through `frontend/lib/messages.ts`. Dates and decimal numbers follow the selected language. Vacancy titles/descriptions and user-entered text retain their original language; external learning resources may use another language. Canonical skill IDs, scores, resource URLs, and account progress are independent of the display language.
+
+The shared palette in `frontend/app/preferences.css` supplies both themes. Preference tests check translation placeholders, coverage of current UI/catalog content, and WCAG AA contrast for normal text on the main surfaces. Keyboard focus and the existing responsive layout remain available.
+
 | Area | Technology | Responsibility |
 | --- | --- | --- |
 | Interface | Next.js, TypeScript, Tailwind CSS | Public pages, auth forms, profile editing, basic demo analysis |
