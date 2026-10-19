@@ -1,0 +1,27 @@
+# Secrets (examples are safe to track)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# JavaScript
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local and personal data
+data/local/
+*.log
+.DS_Store
+Thumbs.db
+.tools/
+

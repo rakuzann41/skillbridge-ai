@@ -1,0 +1,50 @@
+[
+  {
+    "stage_key": "python",
+    "title": "Python fundamentals",
+    "description": "Work with variables, lists, loops, and small functions. Practice reading a simple data file.",
+    "outcome": "Write a short script that reads records and summarizes a few values.",
+    "skill_ids": ["python"],
+    "resources": [{"label": "Python tutorial", "url": "https://docs.python.org/3/tutorial/", "note": "Official guide. Some basic programming knowledge is helpful."}]
+  },
+  {
+    "stage_key": "sql",
+    "title": "SQL and relational databases",
+    "description": "Practice filtering, joins, and grouped summaries. Learn how tables connect through keys.",
+    "outcome": "Join two tables and answer a question with a grouped SQL query.",
+    "skill_ids": ["sql", "relational-databases"],
+    "resources": [{"label": "SQLBolt interactive lessons", "url": "https://sqlbolt.com/", "note": "Browser exercises covering queries, joins, and aggregates."}]
+  },
+  {
+    "stage_key": "excel",
+    "title": "Excel and data cleaning",
+    "description": "Organize a table, handle missing values and duplicates, and use formulas or a pivot table to summarize it.",
+    "outcome": "Create a tidy spreadsheet and document the cleaning decisions you made.",
+    "skill_ids": ["excel", "data-cleaning"],
+    "resources": [{"label": "Excel help and learning", "url": "https://support.microsoft.com/en-us/excel/", "note": "Microsoft guides for formulas, tables, and data analysis. Software availability varies."}]
+  },
+  {
+    "stage_key": "pandas",
+    "title": "pandas and exploratory analysis",
+    "description": "Load a table, inspect types and missing values, and explore distributions and grouped summaries.",
+    "outcome": "Create a notebook with a cleaned dataset and three evidence-based observations.",
+    "skill_ids": ["pandas", "statistics"],
+    "resources": [{"label": "pandas getting started", "url": "https://pandas.pydata.org/docs/getting_started/", "note": "Official introductions and practical tutorials. Use after Python fundamentals."}]
+  },
+  {
+    "stage_key": "visualization",
+    "title": "Data visualization and Power BI",
+    "description": "Choose charts that answer a clear question. Keep titles, labels, and comparisons easy to read.",
+    "outcome": "Build a small report with two useful charts and a concise explanation of what they show.",
+    "skill_ids": ["data-visualization", "power-bi", "tableau"],
+    "resources": [{"label": "Microsoft Learn for Power BI", "url": "https://learn.microsoft.com/en-us/training/powerplatform/power-bi", "note": "Official learning paths. You can practice the chart principles with a spreadsheet too."}]
+  },
+  {
+    "stage_key": "project",
+    "title": "A small portfolio analysis",
+    "description": "Choose a dataset and a focused question. Bring together cleaning, queries, analysis, and a readable explanation.",
+    "outcome": "Finish a small analysis with the source, methods, limitations, and findings documented. Keep a simple version history.",
+    "skill_ids": ["git"],
+    "resources": [{"label": "Kaggle datasets", "url": "https://www.kaggle.com/datasets", "note": "Choose a manageable dataset and check its license. Some downloads require an account."}, {"label": "pandas tutorial examples", "url": "https://pandas.pydata.org/docs/getting_started/", "note": "Use the tutorial data if you prefer to begin with a small example."}]
+  }
+]

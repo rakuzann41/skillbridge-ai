@@ -1,0 +1,9 @@
+external_id,title,employer,location,published_at,url,experience,structured_skills,description
+demo-001,[Demo] Junior Data Analyst,Fictional demo employer 01,Demo remote,,,Demo entry level,Excel|SQL,Use SQL and Excel to prepare routine reports. Practice data cleaning on a small dataset.
+demo-002,[Demo] Data Analyst Intern,Fictional demo employer 02,Demo city A,,,Demo internship,Python|Postgres|Statistics,Explore tables in PostgreSQL. Write SQL queries and use pandas for a small analysis.
+demo-003,[Demo] Junior Reporting Analyst,Fictional demo employer 03,Demo city B,,,Demo entry level,Microsoft Excel|PowerBI,Build reports using Power BI and SQL. Apply data cleaning and data visualization.
+demo-004,[Demo] Operations Analyst Intern,Fictional demo employer 04,Demo remote,,,Demo internship,Excel|SQL|Data cleaning,Use Excel and SQL to summarize operations data. Check records with data cleaning steps.
+demo-005,[Demo] Junior BI Analyst,Fictional demo employer 05,Demo city A,,,Demo entry level,Power BI|SQL|Relational databases,Create data visualization with Power BI and SQL. Python is not required.
+demo-006,[Demo] Junior Product Data Analyst,Fictional demo employer 06,Demo city B,,,Demo entry level,Python|Statistics|Tableau,Use SQL and pandas for exploratory analysis. Share analysis scripts with Git.
+demo-007,[Demo] Junior Data Quality Analyst,Fictional demo employer 07,Demo remote,,,Demo entry level,Excel|Data cleaning|SQL|Git,Review records from relational databases using SQL. Track data cleaning work with Git.
+demo-008,[Demo] Analyst Trainee,Fictional demo employer 08,Demo city A,,,Demo trainee,,Help a small team review routine business reports. Full training is provided.

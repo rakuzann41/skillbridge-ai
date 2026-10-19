@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: skillbridge-ai
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: ANALYSIS_SIGNING_KEY
+        generateValue: true
+      # Keep live requests off until the HeadHunter application is approved.
+      - key: HH_ACCESS_TOKEN
+        value: ""
+      - key: HH_USER_AGENT
+        value: ""
