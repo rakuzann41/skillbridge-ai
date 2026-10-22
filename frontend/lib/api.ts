@@ -54,7 +54,7 @@ async function requestApi<T>(
     if (response.status === 503 && path === "/analyses" && method === "POST") {
       const detail = await response.json().catch(() => null);
       const code = detail?.detail?.code;
-      if (detail?.detail?.fallback_available === true && ["not_configured", "access_unavailable", "rate_limited", "upstream_unavailable", "invalid_response", "timeout", "busy", "no_results"].includes(code)) {
+      if (detail?.detail?.fallback_available === true && ["not_configured", "storage_unavailable", "access_unavailable", "rate_limited", "upstream_unavailable", "invalid_response", "timeout", "busy", "no_results"].includes(code)) {
         throw new ApiError(503, "Live vacancies are unavailable. You can use Demo CSV instead.", code);
       }
     }

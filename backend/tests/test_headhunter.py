@@ -198,7 +198,7 @@ class LiveAnalysisApiTests(unittest.TestCase):
         restored = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers())
         self.assertEqual(restored.json(), first)
         self.assertEqual(self.live_calls, 1)
-        reads = [request for request in self.requests if request.url.path == "/rest/v1/analyses" and request.method == "GET"]
+        reads = [request for request in self.requests if request.url.path == "/rest/v1/analyses" and request.method == "GET" and request.url.params.get("limit") != "0"]
         self.assertEqual(len(reads), 2)
         self.assertNotIn("vacancy_snapshot", reads[0].url.params["select"])
         self.assertIn("vacancy_snapshot", reads[1].url.params["select"])
@@ -237,6 +237,23 @@ class LiveAnalysisApiTests(unittest.TestCase):
         other_user = self.client.get(f"/analyses/{first['analysis_id']}", headers=self.headers("b"))
         self.assertEqual(other_user.status_code, 404)
         self.assertEqual(self.live_calls, 1)
+
+    def test_missing_live_storage_is_detected_before_headhunter_and_offers_explicit_demo(self):
+        self.snapshot_columns_available = False
+        failed = self.create()
+        self.assertEqual(failed.status_code, 503)
+        self.assertEqual(failed.json()["detail"]["code"], "storage_unavailable")
+        self.assertTrue(failed.json()["detail"]["fallback_available"])
+        self.assertNotIn("vacancy_snapshot", failed.text)
+        self.assertNotIn("42703", failed.text)
+        self.assertEqual(self.live_calls, 0)
+        self.assertEqual(self.records, {})
+        checks = [r for r in self.requests if r.url.params.get("limit") == "0"]
+        self.assertEqual(len(checks), 1)
+        self.assertEqual(checks[0].url.params["user_id"], f"eq.{demo_tests.USER_A}")
+        self.assertEqual(checks[0].headers["authorization"], "Bearer test-a")
+        fallback = self.client.post("/analyses", headers=self.headers(), json={"source": "csv_demo"})
+        self.assertEqual(fallback.status_code, 201)
 
     def test_live_validation_auth_and_no_client_scores_or_automatic_fallback(self):
         for body in ({"accept_hh_terms": False}, {"accept_hh_terms": "true"}, {"sample_limit": 11}, {"vacancies": []}, {"scores": [100]}):

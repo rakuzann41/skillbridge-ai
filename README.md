@@ -4,7 +4,7 @@ Turn real job-market requirements into a clear, personalized next-step plan.
 
 A focused career-guidance MVP for students and early-career candidates pursuing **Junior Data Analyst** roles. [AGENTS.md](AGENTS.md) is the project source of truth.
 
-## Current milestone: deployment preparation; HeadHunter access pending
+## Current milestone: live HeadHunter activation
 
 - Next.js App Router landing page with TypeScript and Tailwind CSS.
 - Email/password sign-up, confirmation handling, sign-in, and sign-out using Supabase Auth.
@@ -16,7 +16,7 @@ A focused career-guidance MVP for students and early-career candidates pursuing 
 - Account-owned analysis input snapshots, restored on refresh independently of later profile edits.
 - A compact `/analysis` screen with demo labels, sample counts, skill gaps, score explanations, and extraction evidence.
 - One private six-stage `/roadmap` checklist with reviewed resources, practice outcomes, completion/undo, and a compact progress summary.
-- An official HeadHunter provider with bounded requests, timeouts, access/rate-limit errors, signed saved snapshots, and an explicit Demo CSV alternative. Real API access awaits an approved application and backend configuration.
+- An official HeadHunter provider with bounded requests, timeouts, access/rate-limit errors, signed saved snapshots, and an explicit Demo CSV alternative. The analysis form starts with HeadHunter; each environment needs its own backend configuration.
 - A single-service Docker/Render deployment configuration. See [the deployment guide](docs/deployment.md). A successful local build does not confirm public deployment.
 
 Without HeadHunter credentials, the available working source is the synthetic demo CSV. It contains fictional vacancies and is labeled throughout. Gemini remains a later milestone. Skill confidence and stage completion are self-reported; a match score is recognized skill overlap, not hiring probability.
@@ -33,7 +33,7 @@ The shared palette in `frontend/app/preferences.css` supplies both themes. Prefe
 
 | Area | Technology | Responsibility |
 | --- | --- | --- |
-| Interface | Next.js, TypeScript, Tailwind CSS | Public pages, auth forms, profile editing, basic demo analysis |
+| Interface | Next.js, TypeScript, Tailwind CSS | Public pages, auth forms, profile editing, live/CSV analysis and vacancy previews |
 | Identity | Supabase Auth JavaScript SDK | Email/password authentication, browser session persistence and refresh |
 | API | Python, FastAPI, Pydantic, httpx | Token verification, validation, normalization, deterministic extraction/scoring |
 | Storage | Supabase PostgreSQL and Data API | Profiles, skills, immutable analysis inputs, one roadmap per account, checklist progress, ownership policies |
@@ -129,7 +129,7 @@ cd backend
 
 Use [sign-up](http://127.0.0.1:3000/sign-up), [sign-in](http://127.0.0.1:3000/sign-in), or [your profile](http://127.0.0.1:3000/setup). API [health](http://127.0.0.1:8000/health) and [interactive documentation](http://127.0.0.1:8000/docs) remain available. Stop either process with `Ctrl+C`.
 
-Save a profile, then use **Try demo skill analysis**, or open [the analysis screen](http://127.0.0.1:3000/analysis). Choose **Analyze vacancies**. The source is identified as **Demo CSV**, using fictional examples. The saved result has an account-private URL at `/analysis/{id}`; bookmark that URL to return to the same comparison. A full history/dashboard view is not part of this step.
+Save a profile, then use **Analyze vacancies**, or open [the analysis screen](http://127.0.0.1:3000/analysis). HeadHunter is selected initially. To use repeatable fictional examples, explicitly choose **Demo CSV** before starting. The saved result has an account-private URL at `/analysis/{id}`; bookmark that URL to return to the same comparison. A full analysis-history view is not implemented.
 
 The results have three keyboard-accessible views:
 
@@ -181,7 +181,7 @@ The compact progress summary shows completed/total stages, the nearest whole per
 | `GET /health` | Public | Process health, independent of Supabase |
 | `GET /profile` | Supabase bearer token | Current user's profile and skills; empty defaults before first save |
 | `PUT /profile` | Supabase bearer token | Save profile and replace its skill list atomically |
-| `POST /analyses` | Supabase bearer token | Analyze a demo sample using the saved profile; persist inputs |
+| `POST /analyses` | Supabase bearer token | Analyze a HeadHunter or explicit demo sample using the saved profile; persist inputs |
 | `GET /analyses/{id}` | Supabase bearer token | Restore an owned analysis from its pinned source and inputs |
 | `GET /roadmap` | Supabase bearer token | Saved roadmap, or JSON `null` before creation; never creates or resets data |
 | `POST /roadmap` | Supabase bearer token | Create one roadmap from an optional owned `analysis_id`; return the existing roadmap if already present |
@@ -221,6 +221,12 @@ For configured live access, use `{ "source": "headhunter", "sample_limit": 8, "a
 ```
 
 The helper requests the contact email and hidden application client ID/secret, exchanges them once via `POST https://api.hh.ru/token`, and writes only the resulting application token, contact header, and stable signing key to ignored `backend/.env`. It does not store the client secret. Reissuing an application token revokes the prior token: do not rerun unnecessarily. Restart FastAPI afterwards. For deployment, configure `HH_ACCESS_TOKEN` and `HH_USER_AGENT` in Render's environment; do not replace Render's existing `ANALYSIS_SIGNING_KEY` with the local one.
+
+Apply `supabase/migrations/202610190004_live_analysis_snapshots.sql` before a live analysis. The API checks the required snapshot columns using an authenticated, ownership-filtered zero-row request before calling HeadHunter. Storage failures offer an explicit Demo CSV alternative without spending vacancy requests or pretending a live result was saved.
+
+To check activation, sign in locally, save your skills, open `/analysis`, read and accept the linked HeadHunter agreement yourself, then analyze the HeadHunter source. Results show their sample size and fetch time. In **Job matches**, **Vacancy preview** expands the API description and publication/experience details; **Why this score?** explains the deterministic calculation and extraction evidence. The original listing opens on hh.ru. Preview text is rendered as plain text, not embedded third-party HTML or a screenshot. Refresh the result URL to check that the signed snapshot restores. Existing roadmap progress is preserved. Repeat this check on Render after configuring its environment and deploying the changes.
+
+Local activation checks on 2026-10-22: 85 backend tests and 15 frontend tests passed, as did TypeScript and the production build. The actual HeadHunter API returned eight scorable vacancies. Matching against explicit SQL/Python test skills and authenticated snapshot replay produced identical results without writing account data. Migration 004 was confirmed by the user and a subsequent zero-row schema check no longer reported missing columns. A signed-in browser save/refresh and Render activation remain separate checks.
 
 The provider requests one search page of at most 20 candidates and at most 10 detail records, with no automatic retries or scraping. The title search covers English/Russian Data Analyst names, no-experience/1–3-year roles, all regions, and the last 30 days; explicit senior/lead titles, archived, undated, malformed, and stale records are skipped. Requests have five-second per-request timeouts and a 22-second overall collection deadline. Access/CAPTCHA/rate-limit failures stop collection. A single bounded process cache lasts five minutes; a collection gate/cooldown reduces repeated API calls. Multi-worker or multi-instance deployment would need a shared limit before scaling; the provided deployment uses one API process.
 
@@ -271,7 +277,7 @@ Before calling step 2 fully verified, check with real accounts:
 3. **Repeatable analysis:** implemented: labeled synthetic CSV provider, normalization, conservative extraction, versioned scoring, saved input replay, and a basic demo results screen.
 4. **Results refinement:** implemented: focused gap, match, and method views; progressive score/evidence disclosures; confidence and score filters; loading, empty, and actionable error states. Concise source labels distinguish demo records throughout.
 5. **Roadmap and progress:** implemented: reviewed resources, one persisted checklist, undo completion, and compact progress; progress is preserved across analyses. Apply migration 003 before hosted use.
-6. **Live jobs:** provider, explicit fallback, original links, signed storage, and regression tests are implemented. The user confirmed migration 004 succeeded. Application approval/configuration and verification against the actual API are pending. Public deployment is being prepared first. No original-site screenshot preview is added.
+6. **Live jobs:** provider, explicit fallback, original links, signed storage, and regression tests are implemented. The application is approved and local credentials returned a real eight-vacancy sample. Live storage requires migration 004. The interface defaults to HeadHunter and provides an API text preview; no original-site screenshot or iframe is added. Render credentials and public activation must be configured separately.
 7. **Optional AI:** concise Gemini explanations with graceful failures.
 8. **MVP acceptance:** end-to-end ownership, persistence, mobile/accessibility checks, and polish.
 

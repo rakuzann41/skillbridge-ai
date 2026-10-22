@@ -33,6 +33,7 @@ export type AnalysisResult = {
       title: string;
       employer: string | null;
       location: string | null;
+      experience?: string | null;
       description: string;
       published_at: string | null;
       url: string | null;

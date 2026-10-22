@@ -7,10 +7,12 @@ import { ChevronDown, MapPin } from "lucide-react";
 import {
   filteredMatches,
   skillNames,
+  originalVacancyUrl,
   type MatchFilter,
 } from "@/lib/results-presentation";
 import type { AnalysisResult } from "@/types/analysis";
 import { ResultsEmpty } from "@/components/results/results-state";
+import { VacancyPreview } from "@/components/results/vacancy-preview";
 
 export function JobMatches({ result }: { result: AnalysisResult }) {
   const { t, locale } = useI18n();
@@ -123,6 +125,7 @@ export function JobMatches({ result }: { result: AnalysisResult }) {
                   </p>
                 </div>
               )}
+              <VacancyPreview job={match.job} />
               <details className="score-explainer">
                 <summary>
                   {match.score === null
@@ -201,14 +204,7 @@ export function JobMatches({ result }: { result: AnalysisResult }) {
                     </>
                   )}
                   <details className="source-excerpt">
-                    <summary>{t("View source description & evidence")}</summary>
-                    <p
-                      className="vacancy-description"
-                      lang={match.job.is_demo ? "en" : undefined}
-                    >
-                      {match.job.description ||
-                        t("No description was provided.")}
-                    </p>
+                    <summary>{t("View skill evidence")}</summary>
                     {match.job.skills.length ? (
                       <ul className="evidence-list">
                         {match.job.skills.map((skill) => (
@@ -227,30 +223,26 @@ export function JobMatches({ result }: { result: AnalysisResult }) {
                     )}
                     <p className="source-record-note">
                       {match.job.is_demo ? t("Demo CSV") : t("HeadHunter API")}{" "}
-                      · {match.job.external_id} {t("· Publication date")}{" "}
-                      {match.job.published_at || t("not provided")}.
+                      · {match.job.external_id}.
                       {match.job.is_demo && t(" No live application link.")}
                     </p>
                   </details>
                 </div>
               </details>
-              {!match.job.is_demo &&
-                /^https:\/\/hh\.ru\/vacancy\/[0-9]{1,20}$/.test(
-                  match.job.url || "",
-                ) && (
-                  <a
-                    className="text-link original-vacancy"
-                    href={match.job.url!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t("View original vacancy on hh.ru")}
-                    <span className="sr-only">
-                      {" "}
-                      {t("(opens in a new tab)")}
-                    </span>
-                  </a>
-                )}
+              {originalVacancyUrl(match.job) && (
+                <a
+                  className="text-link original-vacancy"
+                  href={originalVacancyUrl(match.job)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("View original vacancy on hh.ru")}
+                  <span className="sr-only">
+                    {" "}
+                    {t("(opens in a new tab)")}
+                  </span>
+                </a>
+              )}
             </article>
           ))}
         </div>

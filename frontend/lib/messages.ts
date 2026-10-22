@@ -1,5 +1,20 @@
 // English message keys with Kazakh and Russian translations. Product/technology names stay recognizable.
 export const messages: Record<string, readonly [string, string]> = {
+  "Junior Data Analyst · Vacancy analysis": [
+    "Бастапқы деңгейдегі деректер талдаушысы · Вакансияларды талдау",
+    "Начинающий аналитик данных · Анализ вакансий",
+  ],
+  "Live results cannot be saved right now. Try again later or use Demo CSV.": [
+    "Қазір нақты вакансиялар талдауын сақтау мүмкін емес. Кейінірек қайталаңыз немесе демо CSV таңдаңыз.",
+    "Сейчас не удаётся сохранить анализ реальных вакансий. Повторите позже или выберите демо CSV.",
+  ],
+  "Vacancy preview": ["Вакансияны қарау", "Предпросмотр вакансии"],
+  "View skill evidence": ["Дағдылар қайда аталғанын көру", "Посмотреть упоминания навыков"],
+  "Publication date": ["Жарияланған күні", "Дата публикации"],
+  "HeadHunter API excerpt. Availability may have changed; check the original listing.": [
+    "HeadHunter API деректерінен үзінді. Вакансияның мәртебесі өзгеруі мүмкін; түпнұсқасын тексеріңіз.",
+    "Описание из HeadHunter API. Статус вакансии мог измениться; проверьте оригинал.",
+  ],
   "A skill mention is not proof that it is mandatory; all recognized mentions have equal weight.":
     [
       "Дағдының аталуы оның міндетті екенін дәлелдемейді. Барлық танылған дағдының салмағы бірдей.",

@@ -48,7 +48,7 @@ function AnalysisContent({
   const [attempt, setAttempt] = useState(0);
   const [reconnecting, setReconnecting] = useState(false);
   const [recoveryError, setRecoveryError] = useState("");
-  const [source, setSource] = useState<"headhunter" | "csv_demo">("csv_demo");
+  const [source, setSource] = useState<"headhunter" | "csv_demo">("headhunter");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const creation = useRef<AbortController | null>(null);
   useEffect(() => () => creation.current?.abort(), []);

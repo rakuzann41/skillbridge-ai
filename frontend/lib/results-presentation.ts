@@ -11,6 +11,14 @@ export type ResultsFailure = {
   actionLabel: string;
 };
 
+export function originalVacancyUrl(job: AnalysisResult["matches"][number]["job"]) {
+  if (job.is_demo || job.source_type !== "live_api") return null;
+  const expected = `https://hh.ru/vacancy/${job.external_id}`;
+  return /^[0-9]{1,20}$/.test(job.external_id) && job.url === expected
+    ? expected
+    : null;
+}
+
 export function prioritySkills(
   result: AnalysisResult,
   filter: GapFilter = "all",
@@ -62,6 +70,8 @@ export function resultsFailure(
       ? error.code
       : undefined;
   const sourceMessages: Record<string, string> = {
+    storage_unavailable:
+      "Live results cannot be saved right now. Try again later or use Demo CSV.",
     not_configured:
       "HeadHunter access is awaiting application setup. You can compare your skills using the clearly labeled Demo CSV sample.",
     access_unavailable:

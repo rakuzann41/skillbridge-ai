@@ -77,6 +77,8 @@ class AnalysisApiTests(unittest.TestCase):
             self.records[analysis_id] = (owner, record)
             return httpx.Response(201, json=[record])
         self.assertEqual(request.url.params["user_id"], f"eq.{owner}")
+        if request.url.params.get("limit") == "0":
+            return httpx.Response(200, json=[])
         requested = request.url.params["id"].removeprefix("eq.")
         stored = self.records.get(requested)
         rows = []

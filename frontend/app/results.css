@@ -429,6 +429,25 @@
   margin-top: 22px;
   font-size: 12px;
 }
+.vacancy-preview-body {
+  font-size: 14px;
+}
+.vacancy-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 35px;
+  margin-bottom: 16px;
+}
+.vacancy-facts dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.vacancy-facts dd {
+  margin: 4px 0 0;
+}
+.vacancy-preview-body .vacancy-description {
+  color: var(--tone-ink);
+}
 .source-excerpt summary,
 .source-method-details summary,
 .full-sample summary {

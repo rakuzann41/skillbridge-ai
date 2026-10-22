@@ -45,6 +45,31 @@ class AnalysisRepository:
     def __init__(self, profiles: ProfileRepository):
         self.profiles = profiles
 
+    async def check_live_storage(self):
+        # Check the required schema with zero rows before spending the provider quota.
+        # The caller's token and ownership filter remain in force.
+        try:
+            response = await self.profiles.request("GET", "analyses", params={
+                "select": "vacancy_snapshot,snapshot_signature",
+                "user_id": f"eq.{self.profiles.user.id}", "limit": "0",
+            })
+            if response.json() != []:
+                raise ValueError("Invalid storage check response")
+        except HTTPException as error:
+            if error.status_code == 401:
+                raise
+            raise self.live_storage_unavailable() from None
+        except (ValueError, TypeError):
+            raise self.live_storage_unavailable() from None
+
+    @staticmethod
+    def live_storage_unavailable():
+        return HTTPException(503, {
+            "code": "storage_unavailable",
+            "message": "Live results cannot be saved right now. Try later or choose Demo CSV.",
+            "fallback_available": True,
+        })
+
     def validate_record(self, row) -> StoredAnalysis:
         record = StoredAnalysis.model_validate(row)
         if record.source_type == "live_api":

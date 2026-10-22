@@ -4,6 +4,7 @@ import {
   prioritySkills,
   filteredMatches,
   resultsFailure,
+  originalVacancyUrl,
 } from "../lib/results-presentation.ts";
 
 const demand = [
@@ -12,6 +13,24 @@ const demand = [
   { skill_id: "excel", user_level: "not-yet", vacancy_count: 4 },
   { skill_id: "data-cleaning", user_level: "not-yet", vacancy_count: 4 },
 ];
+
+test("vacancy previews link only to the matching live HeadHunter record", () => {
+  const job = { external_id: "123", source_type: "live_api", is_demo: false, url: "https://hh.ru/vacancy/123" };
+  assert.equal(originalVacancyUrl(job), job.url);
+  for (const changes of [
+    { is_demo: true }, { source_type: "csv_demo" }, { external_id: "456" },
+    { url: "javascript:alert(1)" }, { url: "https://hh.ru.attacker.example/vacancy/123" },
+    { url: "https://hh.ru/vacancy/123?redirect=elsewhere" }, { url: null },
+    { external_id: "../123" },
+  ]) assert.equal(originalVacancyUrl({ ...job, ...changes }), null);
+});
+
+test("live storage outages offer a safe explicit fallback", () => {
+  const failure = resultsFailure({ status: 503, code: "storage_unavailable", message: "42703 database secret" }, "create");
+  assert.match(failure.description, /cannot be saved/);
+  assert.match(failure.description, /Demo CSV/);
+  assert.doesNotMatch(JSON.stringify(failure), /42703|secret/);
+});
 
 test("live-source failures explain the alternative without exposing provider diagnostics or changing saved-result recovery", () => {
   const error = { status: 503, code: "rate_limited", message: "private provider diagnostic" };

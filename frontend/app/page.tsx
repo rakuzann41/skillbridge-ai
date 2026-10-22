@@ -207,7 +207,7 @@ export default function Home() {
               </p>
               <Link href="/analysis" className="text-link">
                 {" "}
-                {t("Try the demo comparison")} <ArrowUpRight size={15} />
+                {t("Analyze vacancies")} <ArrowUpRight size={15} />
               </Link>
             </article>
             <article className="workflow-item">
@@ -295,7 +295,7 @@ export default function Home() {
         <p>{t("A clearer path into data.")}</p>
         <span className="footer-status">
           {" "}
-          {t("Junior Data Analyst · Demo vacancy analysis")}{" "}
+          {t("Junior Data Analyst · Vacancy analysis")}{" "}
         </span>
       </footer>
     </>

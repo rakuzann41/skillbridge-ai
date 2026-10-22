@@ -63,6 +63,7 @@ async def create_analysis(
     if request.source == "headhunter":
         if len(get_settings().analysis_signing_key) < 32:
             raise HTTPException(503, {"code": "not_configured", "message": "Live analysis storage needs its server signing key.", "fallback_available": True})
+        await repository.check_live_storage()
         try:
             sample = await live_provider.load(request.sample_limit, datetime.now(timezone.utc))
         except LiveSourceError as error:

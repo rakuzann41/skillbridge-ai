@@ -133,7 +133,7 @@ export function ProfileForm({
             href="/analysis"
           >
             {" "}
-            {t("Try demo skill analysis")} <ArrowRight size={17} />
+            {t("Analyze vacancies")} <ArrowRight size={17} />
           </Link>
         )}
       </aside>
